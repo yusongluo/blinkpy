@@ -338,9 +338,9 @@ class Blink:
                 _LOGGER.info("No videos found on page %s. Exiting.", page)
                 break
 
-            self._parse_downloaded_items(result, camera, path, delay, debug)
+            self._parse_downloaded_items(result, since_epochs, camera, path, delay, debug)
 
-    def _parse_downloaded_items(self, result, camera, path, delay, debug):
+    def _parse_downloaded_items(self, result, time, camera, path, delay, debug):
         """Parse downloaded videos."""
         for item in result:
             try:
@@ -350,6 +350,10 @@ class Blink:
                 address = item["media"]
             except KeyError:
                 _LOGGER.info("Missing clip information, skipping...")
+                continue
+
+            if util.time_to_seconds(created_at) < time:
+                _LOGGER.debug("Skipping videos too early: %s.", created_at)
                 continue
 
             if camera_name not in camera and "all" not in camera:
